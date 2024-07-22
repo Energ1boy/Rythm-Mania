@@ -66,6 +66,19 @@
         #settingsPanel input {
             margin-bottom: 20px;
         }
+        #gameOverScreen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
@@ -73,8 +86,8 @@
     <div id="ui">
         <div id="scoreDisplay">Score: 0</div>
         <div id="streakDisplay">Streak: 0x</div>
-        <button id="pauseButton">Pause</button>
-        <button id="settingsButton">Settings</button>
+        <button id="pauseButton" onclick="togglePause()">Pause</button>
+        <button id="settingsButton" onclick="showSettings()">Settings</button>
     </div>
     <div id="settingsPanel">
         <label for="column1Key">Column 1 Key:</label>
@@ -86,6 +99,13 @@
         <label for="column4Key">Column 4 Key:</label>
         <input type="text" id="column4Key" maxlength="1" value="f">
         <button onclick="saveSettings()">Save</button>
+    </div>
+    <div id="gameOverScreen">
+        <div id="gameOverMessage">Game Over</div>
+        <div id="gameOverScore">Score: 0</div>
+        <div id="gameOverStreak">Highest Streak: 0x</div>
+        <button onclick="restartGame()">Play Again</button>
+        <button onclick="selectAnotherSong()">Select Another Song</button>
     </div>
     <script src="script.js"></script>
 </body>

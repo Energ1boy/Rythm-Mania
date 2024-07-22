@@ -5,14 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rhythm Mania - Song Selection</title>
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
             background: linear-gradient(135deg, #77fdf6, #f5b0f2);
+            background-size: cover;
+            background-attachment: fixed;
             color: #000;
             text-align: center;
             font-family: Arial, sans-serif;
@@ -35,7 +39,7 @@
         }
         .song-name {
             font-size: 2em;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .difficulty-buttons {
             margin-bottom: 30px;
@@ -60,20 +64,44 @@
 <body>
     <div id="landingContent">
         <h1>Rhythm Mania</h1>
+
         <div class="song-container">
             <div class="song-name">Say Less - Cam Luck</div>
             <p>Select difficulty:</p>
             <div class="difficulty-buttons">
-                <button class="difficulty-button" onclick="startGame('easy')">Easy</button>
-                <button class="difficulty-button" onclick="startGame('medium')">Medium</button>
-                <button class="difficulty-button" onclick="startGame('hard')">Hard</button>
+                <button class="difficulty-button" onclick="startGame('Say-Less', 'easy')">Easy</button>
+                <button class="difficulty-button" onclick="startGame('Say-Less', 'medium')">Medium</button>
+                <button class="difficulty-button" onclick="startGame('Say-Less', 'hard')">Hard</button>
+                <button class="difficulty-button" onclick="startGame('Say-Less', 'ultrahard')">Ultra Hard</button>
+            </div>
+        </div>
+
+        <div class="song-container">
+            <div class="song-name">Megalovania</div>
+            <p>Select difficulty:</p>
+            <div class="difficulty-buttons">
+                <button class="difficulty-button" onclick="startGame('Megalovania', 'easy')">Easy</button>
+                <button class="difficulty-button" onclick="startGame('Megalovania', 'medium')">Medium</button>
+                <button class="difficulty-button" onclick="startGame('Megalovania', 'hard')">Hard</button>
+                <button class="difficulty-button" onclick="startGame('Megalovania', 'ultrahard')">Ultra Hard</button>
+            </div>
+        </div>
+
+        <div class="song-container">
+            <div class="song-name">Flamewall</div>
+            <p>Select difficulty:</p>
+            <div class="difficulty-buttons">
+                <button class="difficulty-button" onclick="startGame('Flamewall', 'easy')">Easy</button>
+                <button class="difficulty-button" onclick="startGame('Flamewall', 'medium')">Medium</button>
+                <button class="difficulty-button" onclick="startGame('Flamewall', 'hard')">Hard</button>
+                <button class="difficulty-button" onclick="startGame('Flamewall', 'ultrahard')">Ultra Hard</button>
             </div>
         </div>
     </div>
-
+    
     <script>
-        function startGame(difficulty) {
-            window.location.href = `game.html?song=song1&difficulty=${encodeURIComponent(difficulty)}`;
+        function startGame(song, difficulty) {
+            window.location.href = `game.html?song=${encodeURIComponent(song)}&difficulty=${encodeURIComponent(difficulty)}`;
         }
     </script>
 </body>
