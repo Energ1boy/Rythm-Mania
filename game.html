@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhythm Mania</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: white; /* Changed to white background */
+        }
+        #gameCanvas {
+            display: block;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: black;
+            font-size: 20px;
+        }
+        #scoreDisplay, #streakDisplay {
+            margin-bottom: 10px;
+        }
+        #pauseButton {
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        #settingsButton {
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        #settingsPanel {
+            display: none;
+            position: absolute;
+            top: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        }
+        #settingsPanel label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        #settingsPanel input {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <div id="scoreDisplay">Score: 0</div>
+        <div id="streakDisplay">Streak: 0x</div>
+        <button id="pauseButton">Pause</button>
+        <button id="settingsButton">Settings</button>
+    </div>
+    <div id="settingsPanel">
+        <label for="column1Key">Column 1 Key:</label>
+        <input type="text" id="column1Key" maxlength="1" value="a">
+        <label for="column2Key">Column 2 Key:</label>
+        <input type="text" id="column2Key" maxlength="1" value="s">
+        <label for="column3Key">Column 3 Key:</label>
+        <input type="text" id="column3Key" maxlength="1" value="d">
+        <label for="column4Key">Column 4 Key:</label>
+        <input type="text" id="column4Key" maxlength="1" value="f">
+        <button onclick="saveSettings()">Save</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
