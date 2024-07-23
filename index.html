@@ -8,6 +8,7 @@
         html, body {
             height: 100%;
             margin: 0;
+            overflow: hidden;
         }
         body {
             display: flex;
@@ -26,6 +27,11 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+            box-sizing: border-box;
+            transform: scale(0.9); /* Zoom out to 90% */
+            z-index: 1; /* Ensure it's above the circles */
         }
         h1 {
             margin-bottom: 20px;
@@ -58,6 +64,37 @@
         }
         .difficulty-button:hover {
             background: #357ABD;
+        }
+        .privacy-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #fff;
+            background: #ff6f61;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 20px 0;
+        }
+        .privacy-button:hover {
+            background: #e55b50;
+        }
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% {
+                top: -10%;
+                opacity: 1;
+            }
+            100% {
+                top: 110%;
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -97,12 +134,67 @@
                 <button class="difficulty-button" onclick="startGame('Flamewall', 'ultrahard')">Ultra Hard</button>
             </div>
         </div>
+
+        <button class="privacy-button" onclick="window.location.href='privacy.html'">Privacy Policy</button>
     </div>
     
     <script>
         function startGame(song, difficulty) {
             window.location.href = `game.html?song=${encodeURIComponent(song)}&difficulty=${encodeURIComponent(difficulty)}`;
         }
+
+        // Function to create falling circles
+        function createCircle() {
+            const circle = document.createElement('div');
+            circle.classList.add('circle');
+            document.body.appendChild(circle);
+
+            // Randomize circle properties
+            const size = Math.random() * 50 + 10; // 10px to 60px
+            circle.style.width = `${size}px`;
+            circle.style.height = `${size}px`;
+
+            // Ensure circles do not fall over the white content area
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const contentWidth = document.getElementById('landingContent').offsetWidth;
+            const contentHeight = document.getElementById('landingContent').offsetHeight;
+
+            let leftPosition;
+            if (Math.random() > 0.5) {
+                // Left side of the content area
+                leftPosition = Math.random() * (screenWidth / 2 - contentWidth / 2 - size);
+            } else {
+                // Right side of the content area
+                leftPosition = Math.random() * (screenWidth / 2 - contentWidth / 2 - size) + (screenWidth / 2 + contentWidth / 2);
+            }
+
+            circle.style.left = `${leftPosition}px`;
+
+            // Use predefined colors for vaporwave aesthetic
+            const colors = ['#8B9FD1', '#C9B6E4', '#A0E3E0', '#B9C7F9'];
+            circle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            circle.style.animationDuration = `${Math.random() * 3 + 2}s`; // 2s to 5s
+
+            // Remove circle after animation ends
+            circle.addEventListener('animationend', () => {
+                circle.remove();
+            });
+
+            setTimeout(createCircle, Math.random() * 500); // Create a new circle every 0 to 500ms
+        }
+
+        // Start creating circles
+        createCircle();
     </script>
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script>
+        window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>
