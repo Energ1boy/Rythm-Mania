@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 
 // Game variables
 const columns = 4;
-const noteRadius = 40; // Radius of the falling circles
+const noteRadius = 30; // Radius of the falling circles
 const hitCircleRadius = 40; // Radius of the hit detection circle
 let noteSpeed = 2; // Default speed, will change with difficulty
 const keys = {};
@@ -19,19 +19,16 @@ let gameEnded = false;
 let noteInterval;
 let endCheckInterval;
 
-// Set canvas size
-function resizeCanvas() {
-    canvas.width = window.innerWidth * 1.0;
-    canvas.height = window.innerHeight * 1.0;
+// Column spacing should be recalculated after the canvas size is set
+function updateColumnSpacing() {
+    return canvas.width / (columns + 1);
 }
+
+// Set canvas size
+canvas.width = window.innerWidth * 0.8;
+canvas.height = window.innerHeight * 0.8;
 
 // Adjust column spacing after setting canvas size
-function updateColumnSpacing() {
-    return canvas.width / (columns + 0.7);
-}
-
-// Adjust canvas size and column spacing
-resizeCanvas();
 const columnSpacing = updateColumnSpacing();
 
 // Get URL parameters for song and difficulty
@@ -93,7 +90,7 @@ const soundEffects = {
 // Adjust volumes
 soundEffects.hit.volume = 1; // Full volume for hit sound
 soundEffects.miss.volume = 1; // Full volume for miss sound
-audio.volume = 0.3; // Lower volume for background music
+audio.volume = 0.5; // Lower volume for background music
 
 // Ensure game starts only after user interaction
 window.addEventListener('load', () => {
@@ -189,12 +186,9 @@ function draw() {
     // Draw hit circles
     Object.keys(keyMapping).forEach(key => {
         const columnX = updateColumnSpacing() * (keyMapping[key] + 1);
-        const circleY = canvas.height - hitCircleRadius + 5; // Adjust Y position
-
-        // Ensure hit circles are fully visible and at the bottom
         ctx.fillStyle = keys[key] ? hitCircleColors[key] : 'rgba(0, 0, 0, 0.3)';
         ctx.beginPath();
-        ctx.arc(columnX, circleY, hitCircleRadius, 0, Math.PI * 2);
+        ctx.arc(columnX, canvas.height - hitCircleRadius / 2, hitCircleRadius, 0, Math.PI * 2);
         ctx.fill();
     });
 }
@@ -239,7 +233,7 @@ function togglePause() {
 
 // Generate notes at regular intervals
 function startNoteGeneration() {
-    noteInterval = setInterval(createNote, 1000); // Create a note every second
+    noteInterval = setInterval(createNote, 500); // Create a note every second
     // Schedule end game at the end of the song
     setTimeout(endGame, audio.duration * 1000);
 }
