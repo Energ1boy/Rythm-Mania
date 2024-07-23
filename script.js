@@ -1,17 +1,13 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Set canvas size
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
 // Game variables
+const columns = 4;
+const noteRadius = 40; // Radius of the falling circles
+const hitCircleRadius = 40; // Radius of the hit detection circle
+let noteSpeed = 2; // Default speed, will change with difficulty
 const keys = {};
 const notes = [];
-const noteWidth = 50;
-const noteHeight = 20;
-let noteSpeed = 2; // Default speed, will change with difficulty
-const columns = 4;
 let gameStarted = false;
 let score = 0;
 let streak = 0;
@@ -22,6 +18,21 @@ let isPaused = false;
 let gameEnded = false;
 let noteInterval;
 let endCheckInterval;
+
+// Set canvas size
+function resizeCanvas() {
+    canvas.width = window.innerWidth * 1.0;
+    canvas.height = window.innerHeight * 1.0;
+}
+
+// Adjust column spacing after setting canvas size
+function updateColumnSpacing() {
+    return canvas.width / (columns + 0.7);
+}
+
+// Adjust canvas size and column spacing
+resizeCanvas();
+const columnSpacing = updateColumnSpacing();
 
 // Get URL parameters for song and difficulty
 const urlParams = new URLSearchParams(window.location.search);
@@ -45,7 +56,7 @@ switch(difficulty) {
 }
 
 // Key mappings
-const keyMapping = {
+let keyMapping = {
     'a': 0,
     's': 1,
     'd': 2,
@@ -53,10 +64,18 @@ const keyMapping = {
 };
 
 const columnColors = {
-    'a': '#ffb3b3',
-    's': '#b3ffb3',
-    'd': '#b3b3ff',
-    'f': '#f3b3ff'
+    'a': '#ffb3b3', // Light red
+    's': '#b3ffb3', // Light green
+    'd': '#b3b3ff', // Light blue
+    'f': '#f3b3ff'  // Light purple
+};
+
+// Hit circle colors
+const hitCircleColors = {
+    'a': '#ff9999', // Darker light red
+    's': '#99ff99', // Darker light green
+    'd': '#9999ff', // Darker light blue
+    'f': '#d9aaff'  // Darker light purple
 };
 
 // Load music
@@ -74,7 +93,7 @@ const soundEffects = {
 // Adjust volumes
 soundEffects.hit.volume = 1; // Full volume for hit sound
 soundEffects.miss.volume = 1; // Full volume for miss sound
-audio.volume = 0.5; // Lower volume for background music
+audio.volume = 0.3; // Lower volume for background music
 
 // Ensure game starts only after user interaction
 window.addEventListener('load', () => {
@@ -94,11 +113,12 @@ window.addEventListener('load', () => {
 function createNote() {
     const key = Object.keys(keyMapping)[Math.floor(Math.random() * columns)];
     const note = {
-        x: (canvas.width / columns) * keyMapping[key] + (canvas.width / columns) / 2 - noteWidth / 2,
-        y: 0,
-        width: noteWidth,
-        height: noteHeight,
-        color: columnColors[key]
+        x: updateColumnSpacing() * (keyMapping[key] + 1),
+        y: -noteRadius, // Start offscreen
+        radius: noteRadius,
+        color: columnColors[key],
+        column: keyMapping[key],
+        hit: false // Flag to track if note has been hit
     };
     notes.push(note);
     totalNotes++;
@@ -111,7 +131,7 @@ function update() {
     // Move notes and check for collisions
     notes.forEach(note => {
         note.y += noteSpeed; // Move note down
-        if (note.y > canvas.height) {
+        if (note.y > canvas.height + note.radius) {
             // Note missed
             notes.splice(notes.indexOf(note), 1);
             soundEffects.miss.play(); // Play miss sound
@@ -123,8 +143,11 @@ function update() {
     Object.keys(keyMapping).forEach(key => {
         if (keys[key]) {
             notes.forEach(note => {
-                if (Math.abs(note.x - keyMapping[key] * (canvas.width / columns) - (canvas.width / columns) / 2 + noteWidth / 2) < noteWidth / 2 && note.y > canvas.height - 100) {
+                if (!note.hit && note.column === keyMapping[key] &&
+                    Math.abs(note.x - updateColumnSpacing() * (note.column + 1)) < note.radius &&
+                    note.y > canvas.height - hitCircleRadius) {
                     // Note hit
+                    note.hit = true; // Mark note as hit
                     notes.splice(notes.indexOf(note), 1);
                     soundEffects.hit.play(); // Play hit sound
                     score += 10; // Increase score
@@ -147,7 +170,7 @@ function update() {
 function showColorPop(x, y, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(x + noteWidth / 2, y + noteHeight / 2, 20, 0, Math.PI * 2);
+    ctx.arc(x, y, 25, 0, Math.PI * 2); // Adjusted size for color pop
     ctx.fill();
 }
 
@@ -158,15 +181,22 @@ function draw() {
     // Draw notes
     notes.forEach(note => {
         ctx.fillStyle = note.color;
-        ctx.fillRect(note.x, note.y, note.width, note.height);
+        ctx.beginPath();
+        ctx.arc(note.x, note.y, note.radius, 0, Math.PI * 2);
+        ctx.fill();
     });
 
-    // Draw key mappings for reference
-    ctx.fillStyle = 'gray';
-    for (let i = 0; i < columns; i++) {
-        const x = (canvas.width / columns) * i + (canvas.width / columns) / 2 - noteWidth / 2;
-        ctx.fillRect(x, canvas.height - 20, noteWidth, 10);
-    }
+    // Draw hit circles
+    Object.keys(keyMapping).forEach(key => {
+        const columnX = updateColumnSpacing() * (keyMapping[key] + 1);
+        const circleY = canvas.height - hitCircleRadius + 5; // Adjust Y position
+
+        // Ensure hit circles are fully visible and at the bottom
+        ctx.fillStyle = keys[key] ? hitCircleColors[key] : 'rgba(0, 0, 0, 0.3)';
+        ctx.beginPath();
+        ctx.arc(columnX, circleY, hitCircleRadius, 0, Math.PI * 2);
+        ctx.fill();
+    });
 }
 
 // Update score display
@@ -284,6 +314,12 @@ audio.addEventListener('play', () => {
 function showSettings() {
     const settingsPanel = document.getElementById('settingsPanel');
     settingsPanel.style.display = 'block';
+
+    // Populate current key values
+    document.getElementById('column1Key').value = getKeyFromValue(0);
+    document.getElementById('column2Key').value = getKeyFromValue(1);
+    document.getElementById('column3Key').value = getKeyFromValue(2);
+    document.getElementById('column4Key').value = getKeyFromValue(3);
 }
 
 // Save settings
@@ -293,20 +329,51 @@ function saveSettings() {
     const column3Key = document.getElementById('column3Key').value;
     const column4Key = document.getElementById('column4Key').value;
 
-    keyMapping[column1Key] = 0;
-    keyMapping[column2Key] = 1;
-    keyMapping[column3Key] = 2;
-    keyMapping[column4Key] = 3;
+    // Update keyMapping
+    keyMapping = {
+        [column1Key]: 0,
+        [column2Key]: 1,
+        [column3Key]: 2,
+        [column4Key]: 3
+    };
+
+    // Update column colors and hit circle colors to reflect new keys
+    columnColors[column1Key] = '#ffb3b3'; // Light red
+    columnColors[column2Key] = '#b3ffb3'; // Light green
+    columnColors[column3Key] = '#b3b3ff'; // Light blue
+    columnColors[column4Key] = '#f3b3ff'; // Light purple
+
+    hitCircleColors[column1Key] = '#ff9999'; // Darker light red
+    hitCircleColors[column2Key] = '#99ff99'; // Darker light green
+    hitCircleColors[column3Key] = '#9999ff'; // Darker light blue
+    hitCircleColors[column4Key] = '#d9aaff'; // Darker light purple
 
     const settingsPanel = document.getElementById('settingsPanel');
     settingsPanel.style.display = 'none';
+
+    // Reset the game to apply changes
+    if (gameStarted) {
+        notes.length = 0; // Clear existing notes
+        score = 0;
+        streak = 0;
+        maxStreak = 0;
+        totalNotes = 0;
+        hitNotes = 0;
+        startNoteGeneration(); // Restart note generation
+    }
+}
+
+// Get the key from the value in keyMapping
+function getKeyFromValue(value) {
+    return Object.keys(keyMapping).find(key => keyMapping[key] === value);
 }
 
 // Automatically start the game when the audio is ready to play
 audio.addEventListener('canplaythrough', () => {
-    // Automatically start the game when the audio is ready to play
-    gameStarted = true;
-    audio.play().catch(error => console.error('Playback failed:', error));
-    startNoteGeneration();
-    gameLoop();
+    if (!gameStarted) {
+        gameStarted = true;
+        audio.play().catch(error => console.error('Playback failed:', error));
+        startNoteGeneration();
+        gameLoop();
+    }
 });
